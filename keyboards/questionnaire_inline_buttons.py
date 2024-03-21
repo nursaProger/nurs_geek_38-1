@@ -12,3 +12,5 @@ async def start_questionnaire_keyboard(options):
         button = InlineKeyboardButton(option, callback_data=option.lower())
         markup.add(button)
     return markup
+
+

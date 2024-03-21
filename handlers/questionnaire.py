@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from config import bot
 from keyboards import questionnaire_inline_buttons
+from database.bot_db import Database
 
 
 questions = {
@@ -82,9 +83,28 @@ async def terraria_call(call: types.CallbackQuery):
     )
 
 
+async def check_ban_status(call: types.CallbackQuery):
+    db = Database()
+    banned_count = db.sql_check_banned_user(call.from_user.id)
+    if banned_count > 0:
+        await bot.send_message(
+            chat_id=call.from_user.id,
+            text=f"You have been banned with {banned_count} violations"
+        )
+    else:
+        await bot.send_message(
+            chat_id=call.from_user.id,
+            text="You are not banned"
+        )
+
 
 
 def register_questionnaire_handlers(dp: Dispatcher):
+    dp.register_callback_query_handler(
+        check_ban_status,
+        lambda call: call.data == "check_ban"
+    )
+
     dp.register_callback_query_handler(
         start_questionnaire_call,
         lambda call: call.data == "start_questionnaire"
